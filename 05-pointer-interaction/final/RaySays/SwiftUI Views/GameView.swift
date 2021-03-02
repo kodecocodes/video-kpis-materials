@@ -58,7 +58,6 @@ struct GameView: View {
         GameKeyboard(gameEngine: gameEngine)
           .padding(EdgeInsets(top: 0, leading: 60, bottom: 20, trailing: 60))
         Spacer()
-        // swiftlint:disable multiple_closures_with_trailing_closure
         Button(
           action: {
             self.playAction()
