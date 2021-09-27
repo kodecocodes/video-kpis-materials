@@ -1,0 +1,166 @@
+/// Copyright (c) 2021 Razeware LLC
+/// 
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+/// 
+/// Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
+/// distribute, sublicense, create a derivative work, and/or sell copies of the
+/// Software in any work that is designed, intended, or marketed for pedagogical or
+/// instructional purposes related to programming, coding, application development,
+/// or information technology.  Permission for such use, copying, modification,
+/// merger, publication, distribution, sublicensing, creation of derivative works,
+/// or sale is expressly withheld.
+/// 
+/// This project and source code may use libraries or frameworks that are
+/// released under various Open-Source licenses. Use of those libraries and
+/// frameworks are governed by their own individual licenses.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+/// THE SOFTWARE.
+
+import SwiftUI
+
+struct DailyAnimal: View {
+  @State private var animalName: String = starterAnimals.randomElement()!
+  @State private var isPreviewPresented = false
+  
+  var body: some View {
+    VStack(spacing: 50.0) {
+      Text(animalName)
+        .font(.largeTitle)
+      
+      Image(animalName)
+        .resizable()
+        .scaledToFit()
+        .frame(width: 300, height: 300)
+      
+      HStack {
+        Button("New Animal") {
+          self.animalName = starterAnimals.randomElement()!
+        }
+        .font(.title2)
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .keyboardShortcut("n", modifiers: [])
+        // TODO: - Add Hover Effect
+        .hoverEffect(.lift)
+        
+        Button("All Animals") { isPreviewPresented = true }
+        .controlSize(.large)
+        .keyboardShortcut("p", modifiers: [])
+        // TODO: - Add Hover Effect
+        .padding(12)
+        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .hoverEffect(.highlight)
+      }
+      .font(.title2)
+      .fullScreenCover(isPresented: $isPreviewPresented) {
+        AnimalCollection(selectedAnimal: $animalName, isPresented: $isPreviewPresented)
+      }
+      
+      Spacer()
+    }
+  }
+}
+
+struct AnimalView: View {
+  let animal: String
+  //  let onTap: (String) -> Void
+  let roundedRectangle = RoundedRectangle(cornerRadius: 12)
+  
+  // TODO: - Add @State Bool
+  @State var isHovering: Bool = false
+  
+  var body: some View {
+    ZStack(alignment: .bottom) {
+      roundedRectangle
+        .fill(Color.clear)
+      // TODO: - Shadow with isHovering
+      //          .shadow(radius: isHovering ? 12 : 3)
+      
+      AnimalImage(animal: animal)
+      // TODO: - Scale with isHovering
+        .scaleEffect(isHovering ? 1.3 : 1)
+      //          .clipShape(roundedRectangle)
+      
+      // TODO: - Check isHovering
+      //        if isHovering || UIDevice.current.userInterfaceIdiom == .phone {
+      AnimalText(animal: animal)
+        .background(Color.accentColor)
+        .clipShape(roundedRectangle)
+      //        }
+    }
+  }
+}
+
+
+struct AnimalCollection: View {
+  @Binding var selectedAnimal: String
+  @Binding var isPresented: Bool
+  
+  var columns = [GridItem(.adaptive(minimum: 150, maximum: 300), spacing: 24)]
+  
+  var body: some View {
+    ScrollView {
+      LazyVGrid(columns: columns, spacing: 24) {
+        ForEach(starterAnimals, id: \.self) { animal in
+          Button {
+            isPresented = false
+          } label: {
+            AnimalView(animal: animal)
+          }
+        }
+      }
+      .padding()
+    }
+  }
+}
+
+struct AnimalText: View {
+  let animal: String
+  
+  var body: some View {
+    HStack {
+      Spacer()
+      Text(animal)
+        .font(.headline)
+        .lineLimit(1)
+        .foregroundColor(.white)
+        .padding(.vertical)
+      Spacer()
+    }
+  }
+}
+
+struct AnimalImage: View {
+  let animal: String
+  
+  var body: some View {
+    Image(animal)
+      .resizable()
+      .padding(12)
+      .scaledToFill()
+      .foregroundColor(.black)
+  }
+}
+
+
+struct SwiftUIView_Previews: PreviewProvider {
+  static var previews: some View {
+    DailyAnimal()
+    
+    AnimalCollection(selectedAnimal: .constant("blobfish"), isPresented: .constant(true))
+  }
+}
